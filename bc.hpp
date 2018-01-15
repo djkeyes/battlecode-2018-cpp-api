@@ -55,8 +55,17 @@ static void print_trace() {
   size = backtrace(array, 10);
 
   // print out all the frames to stderr
-  backtrace_symbols_fd(array, size, STDOUT_FILENO);
-  exit(1);
+  char **messages = backtrace_symbols(array, size);
+  printf("[bt] Execution path:\n");
+  for (int i=1; i<size; ++i)
+  {
+    printf("[bt] #%d %s\n", i, messages[i]);
+    fflush(stdout);
+
+    char command[256];
+    sprintf(command,"addr2line %p -e main", array[i]);
+    system(command);
+  }
 }
 #else
 static void print_trace() {
